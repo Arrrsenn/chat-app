@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: chat-app
+  kafka:
+    topic:
+      name: chat_message
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+server:
+  port: 8085

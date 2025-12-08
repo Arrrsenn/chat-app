@@ -1,0 +1,8 @@
+### Отправка сообщения
+POST http://localhost:8085/api/v1/send
+Content-Type: application/json
+
+{
+  "username": "Producer",
+  "content": "Привет, как дела?"
+}

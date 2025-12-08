@@ -17,6 +17,13 @@
     </properties>
 
     <dependencies>
+        <!--chat-api-->
+        <dependency>
+            <groupId>com.chat</groupId>
+            <artifactId>chat-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
