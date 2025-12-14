@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Чат</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        #messages {
+            border: 1px solid #ccc;
+            height: 300px;
+            overflow-y: scroll;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+
+        .my-message {
+            background: #d1e7dd;
+            text-align: right;
+        }
+
+        .other-message {
+            background: #f0f0f0;
+            text-align: left;
+        }
+
+        #status {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .room-buttons {
+            margin-bottom: 10px;
+        }
+
+        .room-buttons button {
+            margin-right: 5px;
+        }
+
+        .active-room {
+            background: #0d6efd;
+            color: white;
+        }
+
+        input {
+            padding: 5px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<h1>Чат</h1>
+
+<div>
+    <label>Ваше имя: </label>
+    <input type="text" id="username" placeholder="Введите имя">
+</div>
+<br>
+
+<div id="status" class="disconnected">Отключено</div>
+
+<div class="room-buttons">
+    <button onclick="joinRoom('general')">Общий</button>
+    <button onclick="joinRoom('room1')">Комната 1</button>
+    <button onclick="joinRoom('room2')">Комната 2</button>
+</div>
+
+<div id="current-room">Текущая комната: не выбрана</div>
+<div id="messages"></div>
+
+<div id="send-form">
+    <input type="text" id="message-input" placeholder="Введите сообщение" style="width: 70%;">
+    <button onclick="sendMessage()">Отправить</button>
+</div>
+
+<button onclick="connect()">Подключиться</button>
+<button onclick="disconnect()">Отключиться</button>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script>
+    let stompClient = null;
+    let currentSubscription = null;
+    let currentRoom = null;
+
+    function connect() {
+        const socket = new SockJS('http://localhost:8090/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            document.getElementById('status').textContent = 'Подключено';
+            document.getElementById('status').className = 'connected';
+        });
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+        document.getElementById('status').textContent = 'Отключено';
+        document.getElementById('status').className = 'disconnected';
+        currentRoom = null;
+        document.getElementById('current-room').textContent = 'Текущая комната: не выбрана';
+    }
+
+    function joinRoom(roomId) {
+        if (stompClient === null || !stompClient.connected) {
+            alert('Сначала подключитесь к серверу');
+            return;
+        }
+
+        // Отписываемся от предыдущей комнаты
+        if (currentSubscription !== null) {
+            currentSubscription.unsubscribe();
+        }
+
+        // Очищаем сообщения
+        document.getElementById('messages').innerHTML = '';
+
+        // Подписываемся на новую комнату
+        currentRoom = roomId;
+        currentSubscription = stompClient.subscribe('/topic/chat/' + roomId, function (message) {
+            showMessage(JSON.parse(message.body));
+        });
+
+        document.getElementById('current-room').textContent = 'Текущая комната: ' + roomId;
+    }
+
+    function showMessage(chatMessage) {
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message';
+
+        const myUsername = document.getElementById('username').value;
+        if (chatMessage.username === myUsername) {
+            messageElement.className += ' my-message';
+        } else {
+            messageElement.className += ' other-message';
+        }
+
+        messageElement.textContent = chatMessage.username + ': ' + chatMessage.content;
+        messagesDiv.appendChild(messageElement);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function sendMessage() {
+        const username = document.getElementById('username').value;
+        const content = document.getElementById('message-input').value;
+
+        if (!username) {
+            alert('Введите ваше имя');
+            return;
+        }
+        if (!content) {
+            alert('Введите сообщение');
+            return;
+        }
+        if (!currentRoom) {
+            alert('Выберите комнату');
+            return;
+        }
+
+        const message = {
+            username: username,
+            content: content,
+            roomId: currentRoom
+        };
+
+        fetch('http://localhost:8085/api/v1/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(message)
+        })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('message-input').value = '';
+                }
+            })
+            .catch(error => console.error('Ошибка:', error));
+    }
+</script>
+</body>
+</html>

@@ -3,6 +3,7 @@ POST http://localhost:8085/api/v1/send
 Content-Type: application/json
 
 {
-  "username": "Producer",
-  "content": "Привет, как дела?"
+  "username": "User2",
+  "content": "Привет, это новый чат",
+  "roomId": "room2"
 }

@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class ChatMessage {
     private String username;
     private String content;
+    private String roomId;
     private LocalDateTime timestamp;
 
 
@@ -21,6 +22,7 @@ public class ChatMessage {
         return "ChatMessage{" +
                 "username='" + username + '\'' +
                 ", content='" + content + '\'' +
+                ", roomId='" + roomId + '\'' +
                 ", timestamp=" + timestamp +
                 '}';
     }

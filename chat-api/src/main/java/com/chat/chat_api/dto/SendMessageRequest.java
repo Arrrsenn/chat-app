@@ -8,4 +8,5 @@ public class SendMessageRequest {
 
     private String username;
     private String content;
+    private String roomId;
 }

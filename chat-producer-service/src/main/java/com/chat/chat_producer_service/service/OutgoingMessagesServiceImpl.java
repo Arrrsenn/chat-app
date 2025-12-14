@@ -26,6 +26,7 @@ public class OutgoingMessagesServiceImpl implements MessageSender {
         ChatMessage chatMessage = new ChatMessage(
                 sendMessageRequest.getUsername(),
                 sendMessageRequest.getContent(),
+                sendMessageRequest.getRoomId(),
                 LocalDateTime.now());
         kafkaTemplate.send(topicName, chatMessage);
         log.info("Message sent => {} -- {}", chatMessage.getUsername(), chatMessage.getContent());
