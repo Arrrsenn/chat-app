@@ -110,6 +110,11 @@ Content-Type: application/json
 }
 ```
 
+### 6. Screenshot of the work example
+
+<img alt="img.png" height="400" src="readme/img.png" width="400"/>
+<img alt="img_1.png" height="400" src="readme/img_1.png" width="400"/>
+
 ## Future Improvements
 
 - [ ] **Database integration** — persist chat history using chat-db module

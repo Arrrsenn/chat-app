@@ -110,6 +110,11 @@ Content-Type: application/json
 }
 ```
 
+### 6. Скриншот с примером работы
+
+<img alt="img.png" height="400" src="img.png" width="400"/>
+<img alt="img_1.png" height="400" src="img_1.png" width="400"/>
+
 ## Будущие доработки
 
 - [ ] **Интеграция с БД** — сохранение истории чата в модуле chat-db
